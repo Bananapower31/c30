@@ -9,65 +9,78 @@ const Composite = Matter.Composite;
 
 let engine;
 let world;
-var ground, bridge;
-var leftWall, rightWall;
-var jointPoint;
-var jointLink;
+var rope,fruit,ground;
+var fruit_con;
 
-var stones = [];
+var bg_img;
+var food;
+var rabbit;
 
-function setup() {
-  createCanvas(windowWidth, windowHeight);
-  engine = Engine.create();
-  world = engine.world;
-  frameRate(80);
+var button;
+var bunny;
 
-  ground = new Base(0, height - 10, width * 2, 20, "#795548", true);
-  leftWall = new Base(300, height / 2 + 50, 600, 100, "#8d6e63", true);
-  rightWall = new Base(width - 300, height / 2 + 50, 600, 100, "#8d6e63", true);
-
-  /*bridge = new Base(15, { x: width / 2 - 400, y: height / 2 });
-  jointPoint = new Base(width - 600, height / 2 + 10, 40, 20, "#8d6e63", true);*/
-
-  bridge = new Bridge(15, { x: width / 2 - 400, y: height / 2 });
-  jointPoint = new Base(width - 600, height / 2 + 10, 40, 20, "#8d6e63", true);
-
-  /*bridge = new Base(15, { x: width / 2 - 400, y: height / 2 });
-  jointPoint = new Bridge(width - 600, height / 2 + 10, 40, 20, "#8d6e63", true);*/
-
-  /*bridge = new Bridge(15, { x: width / 2 - 400, y: height / 2 });
-  jointPoint = new Bridge(width - 600, height / 2 + 10, 40, 20, "#8d6e63", true);*/
-
-  
-  Matter.Composite.add(bridge.body, jointPoint);
-
-  //Matter.Composite.add(jointPoint);
-  
-  //Matter.Composite.add(jointPoint, bridge.body);
-  
-  //Matter.Composite.add(bridge.body);
-
-
-  jointLink = new Link(bridge, jointPoint);
-
-  for (var i = 0; i <= 8; i++) {
-    var x = random(width / 2 - 200, width / 2 + 300);
-    var y = random(-10, 140);
-    var stone = new Stone(x, y, 80, 80);
-    stones.push(stone);
-  }
+function preload()
+{
+  bg_img = loadImage('background.png');
+  food = loadImage('melon.png');
+  rabbit = loadImage('Rabbit-01.png');
 }
 
-function draw() {
+function setup() 
+{
+  createCanvas(500,700);
+  frameRate(80);
+
+  engine = Engine.create();
+  world = engine.world;
+
+  //btn 1
+  button = createImg('cut_button.png');
+  button.position(200,30);
+  button.size(50,50);
+  button.mouseClicked(drop);
+
+  
+  rope = new Rope(8,{x:220,y:30});
+  ground = new Ground(200,690,600,20);
+  bunny = createSprite(200,620,100,100);
+  bunny.addImage(rabbit);
+  bunny.scale = 0.2;
+
+  fruit = Bodies.circle(300,300,20);
+  Matter.Composite.add(rope.body,fruit);
+
+  fruit_con = new Link(rope,fruit);
+
+  rectMode(CENTER);
+  ellipseMode(RADIUS);
+  textSize(50)
+  
+}
+
+function draw() 
+{
   background(51);
-  Engine.update(engine);
+  image(bg_img,0,0,displayWidth+80,displayHeight);
 
-  ground.show();
-  bridge.show();
-  leftWall.show();
-  rightWall.show();
-
-  for (var stone of stones) {
-    stone.show();
+  push();
+  imageMode(CENTER);
+  if(fruit!=null){
+    image(food,fruit.position.x,fruit.position.y,70,70);
   }
+  pop();
+
+  rope.show();
+
+  Engine.update(engine);
+  ground.show();
+  drawSprites();
+   
+}
+
+function drop()
+{
+  rope.break();
+  fruit_con.detach();
+  fruit_con = null; 
 }
